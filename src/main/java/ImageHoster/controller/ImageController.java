@@ -50,8 +50,8 @@ public class ImageController {
     //Also now you need to add the tags of an image in the Model type object
     //Here a list of tags is added in the Model type object
     //this list is then sent to 'images/image.html' file and the tags are displayed
-    @RequestMapping("/images/{id}")
-    public String showImage(@PathVariable("id") Integer id, Model model) {
+    @RequestMapping("/images/{id}/{title}")
+    public String showImage(@PathVariable("id") Integer id,@PathVariable("title") String title, Model model) {
         Image image = imageService.getImage(id);
         List<Comment> comments=commentService.getAllCommentsByImageId(id);
 		model.addAttribute("comments", comments);
@@ -151,7 +151,7 @@ public class ImageController {
         updatedImage.setDate(new Date());
 
         imageService.updateImage(updatedImage);
-        return "redirect:/images/" + updatedImage.getTitle();
+        return "redirect:/images/" + "/"+imageId +"/"+ updatedImage.getTitle();
     }
 
 
@@ -192,7 +192,7 @@ public class ImageController {
     	List<Comment> comments=commentService.getAllCommentsByImageId(imageId);
     	model.addAttribute("image", image);
     	model.addAttribute("comments", comments);
-    	return "redirect:/images/"+imageId;
+    	return "redirect:/images/"+imageId+"/"+imageTitle;
     }
 
     //This method converts the image to Base64 format
