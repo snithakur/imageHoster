@@ -2,6 +2,9 @@ package ImageHoster.service;
 
 import ImageHoster.model.User;
 import ImageHoster.repository.UserRepository;
+
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +15,16 @@ public class UserService {
     private UserRepository userRepository;
 
     //Call the registerUser() method in the UserRepository class to persist the user record in the database
-    public void registerUser(User newUser) {
-        userRepository.registerUser(newUser);
+    public boolean registerUser(User newUser) {
+
+    	boolean match=Pattern.matches("((?=.*[a-zA-Z])(?=.*[0-9])(?=.*[@#$%!]).{1,})", newUser.getPassword());
+        if(match)
+        {
+          userRepository.registerUser(newUser);
+          return true;
+        }
+        else
+          return false;
     }
 
     //Since we did not have any user in the database, therefore the user with username 'upgrad' and password 'password' was hard-coded

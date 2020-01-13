@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -30,19 +31,50 @@ public class UserController {
     //Adds User type object to a model and returns 'users/registration.html' file
     @RequestMapping("users/registration")
     public String registration(Model model) {
-        User user = new User();
-        UserProfile profile = new UserProfile();
-        user.setProfile(profile);
-        model.addAttribute("User", user);
-        return "users/registration";
+        
+        if(model.containsAttribute("passwordTypeError"))
+           model.addAttribute("passwordTypeError", true);
+        if(model.containsAttribute("User"))
+        {
+            Map map=model.asMap();
+            User user=new User();
+            UserProfile profile = new UserProfile();
+            user.setUsername(((User)map.get("User")).getUsername());
+            user.setPassword(((User)map.get("User")).getPassword());
+            profile.setFullName(((User)map.get("User")).getProfile().getFullName());
+            profile.setEmailAddress(((User)map.get("User")).getProfile().getEmailAddress());
+            profile.setMobileNumber(((User)map.get("User")).getProfile().getMobileNumber());
+            user.setProfile(profile);
+            model.addAttribute("User", user);
+        	return "users/registration";
+        }
+        else
+        {
+        	User user = new User();
+            UserProfile profile = new UserProfile();
+            user.setProfile(profile);
+            model.addAttribute("User", user);
+            return "users/registration";
+        }
     }
 
     //This controller method is called when the request pattern is of type 'users/registration' and also the incoming request is of POST type
     //This method calls the business logic and after the user record is persisted in the database, directs to login page
     @RequestMapping(value = "users/registration", method = RequestMethod.POST)
-    public String registerUser(User user) {
-        userService.registerUser(user);
+    public String registerUser(User user,Model model) {
+    	boolean registered=userService.registerUser(user);
+        String error="Password must contain atleast 1 alphabet, 1 number & 1 special character";
+    	if(registered)
+        {
+    	
         return "redirect:/users/login";
+        }
+        else
+        {
+        	model.addAttribute("passwordTypeError", error);
+        	model.addAttribute("User", user);
+        	return "users/registration";
+        }
     }
 
     //This controller method is called when the request pattern is of type 'users/login'
